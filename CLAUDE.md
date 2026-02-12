@@ -1,27 +1,61 @@
-Ten projekt to gra typu Strategy RPG na platformę ForkArcade.
+# Strategy RPG — ForkArcade
 
-## SDK
-SDK jest podpięty w index.html. Używaj:
-- `ForkArcade.onReady(cb)` — start gry po połączeniu z platformą
-- `ForkArcade.submitScore(score)` — wyślij wynik po zakończeniu bitwy/gry
-- `ForkArcade.getPlayer()` — info o zalogowanym graczu
-- `ForkArcade.updateNarrative(data)` — raportuj stan narracji (graf, zmienne, eventy)
+Turowa strategia z jednostkami na siatce hex — combat, AI, progresja.
 
-## Typ gry
-Turowa strategia z jednostkami na gridzie lub w menu.
-Gracz zarządza drużyną, prowadzi bitwy turowe, zdobywa XP i ekwipunek.
+## Struktura plików
+
+| Plik | Opis |
+|------|------|
+| `data.js` | Rejestracja danych: `FA.register('unitTypes', ...)`, `FA.register('terrain', ...)`, config, abilities, narrative |
+| `map.js` | Siatka hex: math (hex↔pixel, distance, neighbors), generacja mapy, pathfinding |
+| `battle.js` | Logika bitwy: system tur, combat, AI wroga, select/move/attack, warunki wygranej |
+| `render.js` | Warstwy renderowania: grid, highlights, units, floats, UI, overlay |
+| `main.js` | Entry point: keybindings, click handling, event wiring, game loop, `ForkArcade.onReady/submitScore` |
+
+Pliki kopiowane przez platformę (nie edytuj):
+- `fa-engine.js`, `fa-renderer.js`, `fa-input.js`, `fa-audio.js`, `fa-narrative.js` — engine
+- `forkarcade-sdk.js` — SDK
+- `sprites.js` — generowany z `_sprites.json`
+
+## Engine API (window.FA)
+
+- **Event bus**: `FA.on(event, fn)`, `FA.emit(event, data)`, `FA.off(event, fn)`
+- **State**: `FA.resetState(obj)`, `FA.getState()`, `FA.setState(key, val)`
+- **Registry**: `FA.register(registry, id, def)`, `FA.lookup(registry, id)`, `FA.lookupAll(registry)`
+- **Game loop**: `FA.setUpdate(fn)`, `FA.setRender(fn)`, `FA.start()`, `FA.stop()`
+- **Canvas**: `FA.initCanvas(id, w, h)`, `FA.getCtx()`, `FA.getCanvas()`
+- **Layers**: `FA.addLayer(name, drawFn, order)`, `FA.renderLayers()`
+- **Draw**: `FA.draw.clear/rect/text/bar/hex/circle/sprite/withAlpha`
+- **Input**: `FA.bindKey(action, keys)`, `FA.isAction(action)`, `FA.consumeClick()`
+- **Audio**: `FA.defineSound(name, fn)`, `FA.playSound(name)` — built-in: hit, pickup, death, step, spell, levelup
+- **Effects**: `FA.addFloat(x, y, text, color, dur)`, `FA.addEffect(obj)`, `FA.updateFloats(dt)`
+- **Narrative**: `FA.narrative.init(cfg)`, `.transition(nodeId, event)`, `.setVar(name, val, reason)`
+- **Utils**: `FA.rand(min,max)`, `FA.clamp`, `FA.pick(arr)`, `FA.shuffle(arr)`, `FA.uid()`
+
+## Hex Math (GameMap)
+
+- `GameMap.hexToPixel(col, row, size)` — hex coords → pixel
+- `GameMap.pixelToHex(px, py, size)` — pixel → hex coords
+- `GameMap.hexDistance(a, b)` — odległość między hexami
+- `GameMap.hexNeighbors(col, row)` — sąsiednie hexy
+- `GameMap.findReachable(grid, col, row, range)` — dostępne hexy w zasięgu ruchu
+
+## Eventy
+
+| Event | Opis |
+|-------|------|
+| `input:action` | Klawisz zbindowany do akcji |
+| `input:click` | Kliknięcie na canvas |
+| `entity:damaged` | Jednostka otrzymała obrażenia |
+| `entity:killed` | Jednostka zginęła |
+| `game:over` | Koniec bitwy (victory/score) |
+| `state:changed` | Zmiana stanu |
+| `narrative:transition` | Przejście w grafie narracji |
 
 ## Scoring
-Score = (chapters_completed * 1000) + (enemies_killed * 10) + (units_survived * 500) - (turns_total * 5)
 
-## Warstwa narracji
-Gra ma wbudowany narrative engine (`narrative` obiekt w game.js). Platforma wyświetla panel narracyjny w czasie rzeczywistym.
+`ForkArcade.submitScore(score)` w obsłudze `game:over`. Score = bonus za wygraną minus kara za liczbę tur.
 
-- `narrative.transition(nodeId, event)` — przejdź do nowego node'a w grafie, wyślij event
-- `narrative.setVar(name, value, reason)` — zmień zmienną fabularną, wyślij event
-- Rozbuduj `narrative.graph` o nowe nodes i edges dopasowane do fabuły gry
-- Typy nodów: `scene` (scena/rozdział), `choice` (decyzja gracza), `condition` (warunek)
-- Zmienne numeryczne (0-10) wyświetlane jako paski, boolean jako checkmarks
+## Sprite fallback
 
-## Plik wejściowy
-Cała logika gry w `game.js`. Renderowanie na `<canvas id="game">`.
+`FA.draw.sprite(category, name, x, y, size, fallbackChar, fallbackColor)` — jeśli brak sprite'a, rysuje tekst.
