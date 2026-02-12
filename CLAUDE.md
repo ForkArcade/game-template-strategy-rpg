@@ -2,36 +2,6 @@
 
 Turowa strategia z jednostkami na siatce hex — combat, AI, progresja.
 
-## WYMAGANIA — ekrany i narracja
-
-Każda gra MUSI mieć minimum 3 ekrany (stan `screen` w state):
-
-1. **Ekran startowy** (`screen: 'start'`) — tytuł gry, krótki opis, sterowanie, prompt do rozpoczęcia (np. `[SPACJA]`)
-2. **Ekran gry** (`screen: 'playing'`) — właściwa rozgrywka
-3. **Ekran końcowy** (`screen: 'victory'` lub `screen: 'defeat'`) — tekst narracyjny, statystyki, wynik, prompt do restartu (np. `[R]`)
-
-Narracja MUSI być widoczna w grze:
-
-- Zarejestruj teksty narracyjne: `FA.register('narrativeText', nodeId, { text, color })`
-- Wyświetlaj je w grze (np. pasek u góry ekranu z fade out, linia w logu wiadomości)
-- Wywołuj `showNarrative(nodeId)` przy kluczowych momentach (początek bitwy, pierwsza śmierć, zmiana fazy, zwycięstwo, porażka)
-- Ekran końcowy pokazuje odpowiedni tekst narracyjny
-- Narracja to nie tylko dane do platformy — gracz MUSI ją widzieć
-
-Wzorzec `showNarrative`:
-```js
-function showNarrative(nodeId) {
-  var textDef = FA.lookup('narrativeText', nodeId);
-  if (textDef) {
-    // life w milisekundach! dt w engine jest w ms (~16.67ms per tick)
-    FA.setState('narrativeMessage', { text: textDef.text, color: textDef.color, life: 4000 });
-  }
-  FA.narrative.transition(nodeId);
-}
-```
-W game loop odliczaj: `if (state.narrativeMessage && state.narrativeMessage.life > 0) state.narrativeMessage.life -= dt;`
-W renderze wyświetlaj pasek z `alpha = Math.min(1, state.narrativeMessage.life / 1000)` dla płynnego fade out.
-
 ## Struktura plików
 
 | Plik | Opis |
