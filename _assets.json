@@ -1,6 +1,5 @@
 {
-  "style": "Bright tactical pixel art — jasne kolory, czytelne sylwetki, team colors (blue/red)",
-  "gridSize": "8x8 (renderowane w tile gridu)",
+  "style": "Bright tactical pixel art — clear colors, readable silhouettes, team colors (blue/red)",
   "palette": {
     "grass": "#4a4",
     "forest": "#286028",
@@ -17,24 +16,29 @@
   },
   "categories": {
     "terrain": {
+      "size": "16x16",
       "sprites": ["grass", "forest", "mountain", "water", "castle", "road"],
-      "desc": "Tile'e terenu mapy"
+      "desc": "Map terrain tiles"
     },
     "units": {
+      "size": "16x16",
       "sprites": ["warrior", "archer", "mage", "healer"],
-      "desc": "Klasy jednostek (w kolorach drużyny)"
+      "desc": "Unit classes (in team colors)"
     },
     "ui": {
+      "size": "16x16",
       "sprites": ["selectCursor", "moveRange", "attackRange"],
-      "desc": "Wskaźniki UI na mapie"
+      "desc": "Map UI indicators"
     },
     "items": {
+      "size": "16x16",
       "sprites": ["weapon", "armor", "potion"],
-      "desc": "Przedmioty i nagrody"
+      "desc": "Items and rewards"
     },
     "effects": {
+      "size": "16x16",
       "sprites": ["attack", "heal", "buff"],
-      "desc": "Efekty akcji"
+      "desc": "Action effects"
     }
   }
 }
