@@ -1,55 +1,55 @@
 # Strategy RPG — Game Design Prompt
 
-Tworzysz grę typu Strategy RPG na platformę ForkArcade. Gra używa multi-file architektury z silnikiem FA.
+You are creating a Strategy RPG game for the ForkArcade platform. The game uses multi-file architecture with the FA engine.
 
-## Architektura plików
+## File Architecture
 
 ```
-forkarcade-sdk.js   — PLATFORMA: SDK (scoring, auth) (nie modyfikuj)
-fa-narrative.js     — PLATFORMA: moduł narracji (nie modyfikuj)
-sprites.js          — generowany z _sprites.json (nie modyfikuj ręcznie)
-fa-engine.js        — ENGINE (z szablonu): game loop, event bus, state, registry (nie modyfikuj)
-fa-renderer.js      — ENGINE (z szablonu): canvas, layers, draw helpers (nie modyfikuj)
-fa-input.js         — ENGINE (z szablonu): keyboard/mouse, keybindings (nie modyfikuj)
-fa-audio.js         — ENGINE (z szablonu): Web Audio, dźwięki (nie modyfikuj)
-data.js             — DANE GRY: definicje jednostek, ability, terenu, bitew
-game.js             — LOGIKA GRY: battle setup, turny, combat, AI
-render.js           — RENDERING: hex/grid, jednostki, UI panel, overlay
+forkarcade-sdk.js   — PLATFORM: SDK (scoring, auth) (do not modify)
+fa-narrative.js     — PLATFORM: narrative module (do not modify)
+sprites.js          — generated from _sprites.json (do not modify manually)
+fa-engine.js        — ENGINE (from template): game loop, event bus, state, registry (do not modify)
+fa-renderer.js      — ENGINE (from template): canvas, layers, draw helpers (do not modify)
+fa-input.js         — ENGINE (from template): keyboard/mouse, keybindings (do not modify)
+fa-audio.js         — ENGINE (from template): Web Audio, sounds (do not modify)
+data.js             — GAME DATA: definitions of units, abilities, terrain, battles
+game.js             — GAME LOGIC: battle setup, turns, combat, AI
+render.js           — RENDERING: hex/grid, units, UI panel, overlay
 main.js             — ENTRY POINT: keybindings, wiring, ForkArcade.onReady
 ```
 
-**Modyfikujesz tylko: `data.js`, `game.js`, `render.js`, `main.js`.**
+**You only modify: `data.js`, `game.js`, `render.js`, `main.js`.**
 
-## Kluczowe mechaniki
+## Key Mechanics
 
-### System walki
-- Turowy: player phase → enemy phase
-- Grid-based (hex lub square)
-- Każda jednostka: HP, ATK, DEF, SPD, range, move
-- Terrain modifiers: las (+DEF), góra (blokada), woda (niedostępna)
+### Combat System
+- Turn-based: player phase → enemy phase
+- Grid-based (hex or square)
+- Each unit: HP, ATK, DEF, SPD, range, move
+- Terrain modifiers: forest (+DEF), mountain (blocked), water (impassable)
 
-### Jednostki
-- Klasy: Warrior (tank), Archer (range), Mage (AOE), Healer (support)
-- Każda klasa ma 2 unikalne ability
-- Definiowane w registry jako data
+### Units
+- Classes: Warrior (tank), Archer (range), Mage (AOE), Healer (support)
+- Each class has 2 unique abilities
+- Defined in registry as data
 
-### Progresja
-- Seria bitew (chapters)
-- Difficulty scaling: więcej wrogów, nowe typy
+### Progression
+- Series of battles (chapters)
+- Difficulty scaling: more enemies, new types
 
 ### Win/Lose
-- Win: zniszcz zamek / pokonaj wszystkich
-- Lose: wszyscy gracze pokonani
-- Koniec → `ForkArcade.submitScore()`
+- Win: destroy castle / defeat all enemies
+- Lose: all players defeated
+- End → `ForkArcade.submitScore()`
 
 ## Scoring
 ```
 score = (chapters * 1000) + (kills * 10) + (survived * 500) - (turns * 5)
 ```
 
-## Jak dodawać zawartość (data.js)
+## How to Add Content (data.js)
 
-### Nowy typ jednostki
+### New Unit Type
 ```js
 FA.register('unitTypes', 'paladin', {
   name: 'Paladin', char: 'P',
@@ -59,7 +59,7 @@ FA.register('unitTypes', 'paladin', {
 });
 ```
 
-### Nowy ability
+### New Ability
 ```js
 FA.register('abilities', 'holyStrike', {
   name: 'Holy Strike',
@@ -73,7 +73,7 @@ FA.register('abilities', 'holyStrike', {
 });
 ```
 
-### Nowy teren
+### New Terrain
 ```js
 FA.register('terrain', 'swamp', {
   name: 'Swamp', color: '#4a6a3a',
@@ -81,7 +81,7 @@ FA.register('terrain', 'swamp', {
 });
 ```
 
-### Nowa bitwa
+### New Battle
 ```js
 FA.register('battles', 2, {
   name: 'Forest Stronghold',
@@ -91,30 +91,30 @@ FA.register('battles', 2, {
 });
 ```
 
-## Event bus — kluczowe eventy
+## Event Bus — Key Events
 
-| Event | Payload | Kiedy |
+| Event | Payload | When |
 |-------|---------|-------|
-| `input:click` | `{ x, y }` | Klik na canvas |
-| `input:action` | `{ action, key }` | Klawisz akcji |
-| `entity:damaged` | `{ entity, damage, attacker }` | Obrażenia |
-| `entity:killed` | `{ entity, killer }` | Jednostka pokonana |
-| `turn:player` | `{}` | Tura gracza |
-| `turn:enemy` | `{}` | Tura wroga |
-| `battle:end` | `{ victory }` | Koniec bitwy |
-| `game:over` | `{ victory, score }` | Koniec gry |
+| `input:click` | `{ x, y }` | Click on canvas |
+| `input:action` | `{ action, key }` | Action key |
+| `entity:damaged` | `{ entity, damage, attacker }` | Damage dealt |
+| `entity:killed` | `{ entity, killer }` | Unit defeated |
+| `turn:player` | `{}` | Player turn |
+| `turn:enemy` | `{}` | Enemy turn |
+| `battle:end` | `{ victory }` | Battle end |
+| `game:over` | `{ victory, score }` | Game over |
 | `message` | `{ text, color }` | Floating message |
 
 ## Rendering (render.js)
 
-Używaj layer system i FA.draw helpers:
+Use layer system and FA.draw helpers:
 ```js
 FA.addLayer('grid', function(ctx) {
-  // rysuj hex grid — FA.draw.hex(cx, cy, size, fill, stroke)
+  // draw hex grid — FA.draw.hex(cx, cy, size, fill, stroke)
 }, 0);
 
 FA.addLayer('units', function(ctx) {
-  // rysuj jednostki — FA.draw.sprite + FA.draw.bar (HP)
+  // draw units — FA.draw.sprite + FA.draw.bar (HP)
 }, 10);
 
 FA.addLayer('highlights', function(ctx) {
@@ -122,21 +122,21 @@ FA.addLayer('highlights', function(ctx) {
 }, 5);
 
 FA.addLayer('ui', function(ctx) {
-  // panel boczny ze statami, przyciski akcji
+  // side panel with stats, action buttons
 }, 30);
 ```
 
-## Hex math (game.js)
+## Hex Math (game.js)
 ```js
 function hexToPixel(col, row) { /* offset coords → pixel */ }
 function pixelToHex(px, py) { /* pixel → offset coords */ }
 function hexDistance(c1, r1, c2, r2) { /* cube distance */ }
-function hexNeighbors(col, row) { /* 6 sąsiadów */ }
+function hexNeighbors(col, row) { /* 6 neighbors */ }
 ```
 
 ## Narrative
 
-Używaj `FA.narrative` (z engine):
+Use `FA.narrative` (from engine):
 ```js
 FA.narrative.init({
   startNode: 'chapter-1',
@@ -148,17 +148,17 @@ FA.narrative.transition('chapter-2', 'Advancing to Forest Stronghold');
 FA.narrative.setVar('morale', 7, 'Victory boost');
 ```
 
-Typy nodów: `scene`, `choice`, `condition`.
+Node types: `scene`, `choice`, `condition`.
 
-## Sprite'y
+## Sprites
 
-Użyj `create_sprite` i `get_asset_guide`. Integracja:
+Use `create_sprite` and `get_asset_guide`. Integration:
 ```js
 FA.draw.sprite('units', 'warrior', x - size, y - size, size * 2, 'W', '#44c')
 ```
 
-## Czego unikać
+## What to Avoid
 - Drag & drop inventory
-- Cutscenes — krótkie teksty przed bitwą
-- Modyfikowanie plików ENGINE (fa-*.js)
-- Skup się na: wybierz unit → rusz → atakuj → następna tura
+- Cutscenes — short texts before battle
+- Modifying ENGINE files (fa-*.js)
+- Focus on: select unit → move → attack → next turn
