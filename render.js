@@ -29,6 +29,7 @@
     // Layer 5: Highlights (reachable tiles)
     FA.addLayer('highlights', function() {
       var state = FA.getState();
+      if (!state.reachable) return;
       for (var i = 0; i < state.reachable.length; i++) {
         var t = state.reachable[i];
         var pos = GameMap.hexToPixel(t.col, t.row, size);
@@ -41,6 +42,7 @@
     // Layer 10: Units
     FA.addLayer('units', function() {
       var state = FA.getState();
+      if (!state.units) return;
       for (var i = 0; i < state.units.length; i++) {
         var u = state.units[i];
         if (u.hp <= 0) continue;
@@ -65,6 +67,7 @@
     // Layer 30: UI
     FA.addLayer('ui', function() {
       var state = FA.getState();
+      if (!state.units) return;
       FA.draw.text('Tura: ' + state.turn, 8, 8, { color: colors.text, size: 14 });
       FA.draw.text('Faza: ' + state.phase, 8, 26, { color: colors.dim, size: 12 });
       // TODO: selected unit info, action buttons

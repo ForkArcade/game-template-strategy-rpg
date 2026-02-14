@@ -107,21 +107,30 @@ FA.register('battles', 2, {
 
 ## Rendering (render.js)
 
-Use layer system and FA.draw helpers:
+Use layer system and FA.draw helpers. **Every layer that accesses game state (units, grid, reachable tiles) MUST guard against missing state** — the title screen and transition states don't have these properties. An uncaught error in any layer kills the entire game loop permanently.
+
 ```js
 FA.addLayer('grid', function(ctx) {
+  var state = FA.getState();
+  if (!state.grid) return;  // REQUIRED — no grid during title screen
   // draw hex grid — FA.draw.hex(cx, cy, size, fill, stroke)
 }, 0);
 
-FA.addLayer('units', function(ctx) {
-  // draw units — FA.draw.sprite + FA.draw.bar (HP)
-}, 10);
-
 FA.addLayer('highlights', function(ctx) {
+  var state = FA.getState();
+  if (!state.reachable) return;  // REQUIRED — no highlights before game init
   // reachable tiles, attack targets
 }, 5);
 
+FA.addLayer('units', function(ctx) {
+  var state = FA.getState();
+  if (!state.units) return;  // REQUIRED — no units during title screen
+  // draw units — FA.draw.sprite + FA.draw.bar (HP)
+}, 10);
+
 FA.addLayer('ui', function(ctx) {
+  var state = FA.getState();
+  if (!state.units) return;  // REQUIRED — no stats during title screen
   // side panel with stats, action buttons
 }, 30);
 ```
