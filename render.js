@@ -50,7 +50,7 @@
         var typeDef = FA.lookup('unitTypes', u.type);
         var ch = typeDef ? typeDef.char : '?';
         var color = u.team === 'player' ? colors.blueTeam : colors.redTeam;
-        FA.draw.sprite('units', u.type, pos.x + offsetX - size/2, pos.y + offsetY - size/2, size, ch, color);
+        FA.draw.sprite('units', u.type, pos.x + offsetX - size/2, pos.y + offsetY - size/2, size, ch, color, 0);
         // HP bar
         var hpRatio = u.hp / u.maxHp;
         if (hpRatio < 1) {

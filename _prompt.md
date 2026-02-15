@@ -163,7 +163,7 @@ Node types: `scene`, `choice`, `condition`.
 
 Use `create_sprite` and `get_asset_guide`. Integration:
 ```js
-FA.draw.sprite('units', 'warrior', x - size, y - size, size * 2, 'W', '#44c')
+FA.draw.sprite('units', 'warrior', x - size, y - size, size * 2, 'W', '#44c', 0)
 ```
 
 ## What to Avoid
