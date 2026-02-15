@@ -33,9 +33,9 @@
       for (var i = 0; i < state.reachable.length; i++) {
         var t = state.reachable[i];
         var pos = GameMap.hexToPixel(t.col, t.row, size);
-        FA.draw.withAlpha(0.3, function() {
-          FA.draw.hex(pos.x + offsetX, pos.y + offsetY, size - 2, colors.highlight);
-        });
+        FA.draw.pushAlpha(0.3);
+        FA.draw.hex(pos.x + offsetX, pos.y + offsetY, size - 2, colors.highlight);
+        FA.draw.popAlpha();
       }
     }, 5);
 
@@ -77,9 +77,9 @@
     FA.addLayer('overlay', function() {
       var state = FA.getState();
       if (!state.gameOver) return;
-      FA.draw.withAlpha(0.7, function() {
-        FA.draw.rect(0, 0, cfg.canvasWidth, cfg.canvasHeight, '#000');
-      });
+      FA.draw.pushAlpha(0.7);
+      FA.draw.rect(0, 0, cfg.canvasWidth, cfg.canvasHeight, '#000');
+      FA.draw.popAlpha();
       var label = state.victory ? 'ZWYCIESTWO!' : 'PORAZKA!';
       var col = state.victory ? '#4f4' : '#f44';
       FA.draw.text(label, cfg.canvasWidth / 2, cfg.canvasHeight / 2 - 20, { color: col, size: 28, bold: true, align: 'center', baseline: 'middle' });
